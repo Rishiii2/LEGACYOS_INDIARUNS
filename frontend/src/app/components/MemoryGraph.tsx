@@ -15,6 +15,42 @@ export default function MemoryGraph() {
     fetch(`${baseUrl}/api/memory/graph`)
       .then(res => res.json())
       .then(data => {
+        if (data.nodes.length > 0) {
+          // BFS to calculate depth from root node
+          const rootId = data.nodes[0].id;
+          const adjacency: Record<string, string[]> = {};
+          
+          data.nodes.forEach((n: any) => { 
+            adjacency[n.id] = []; 
+            n.depth = -1; 
+          });
+          
+          data.links.forEach((l: any) => {
+            if (adjacency[l.source]) adjacency[l.source].push(l.target);
+            if (adjacency[l.target]) adjacency[l.target].push(l.source);
+          });
+          
+          let queue = [{ id: rootId, depth: 0 }];
+          data.nodes[0].depth = 0;
+          
+          while(queue.length > 0) {
+            const curr = queue.shift()!;
+            const neighbors = adjacency[curr.id] || [];
+            neighbors.forEach(nid => {
+              const neighborNode = data.nodes.find((n: any) => n.id === nid);
+              if (neighborNode && neighborNode.depth === -1) {
+                neighborNode.depth = curr.depth + 1;
+                queue.push({ id: nid, depth: curr.depth + 1 });
+              }
+            });
+          }
+          
+          // Fallback for unconnected nodes
+          data.nodes.forEach((n: any) => {
+            if (n.depth === -1) n.depth = 4;
+          });
+        }
+        
         setGraphData(data);
         setLoading(false);
       })
@@ -25,12 +61,12 @@ export default function MemoryGraph() {
   }, []);
 
   const getNodeColor = useCallback((node: any) => {
-    // If it's the very first node (root node), make it Glowing White. Otherwise, Neon Cyan/Blue.
-    if (graphData.nodes.length > 0 && node.id === (graphData.nodes[0] as any).id) {
-      return '#ffffff'; // Glowing White
-    }
-    return '#00e5ff'; // Glowing Neon Blue/Cyan
-  }, [graphData]);
+    if (node.depth === 0) return '#ffffff'; // Center ball is white
+    if (node.depth === 1) return '#7dd3fc'; // Sky blue
+    if (node.depth === 2) return '#0ea5e9'; // Bright blue
+    if (node.depth === 3) return '#0284c7'; // Deep blue
+    return '#082f49'; // Very dark blue for farthest nodes
+  }, []);
 
   if (loading) {
     return <div className="text-neutral-500 text-sm">Loading Neural Graph...</div>;
