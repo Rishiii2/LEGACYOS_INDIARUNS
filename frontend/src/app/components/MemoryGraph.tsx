@@ -25,10 +25,12 @@ export default function MemoryGraph() {
   }, []);
 
   const getNodeColor = useCallback((node: any) => {
-    // Generate a consistent pseudo-random color based on node ID to keep it stable
-    const seed = node.id ? node.id.length : Math.random() * 10;
-    return seed % 2 === 0 ? '#3b82f6' : '#ffffff'; // Blue or White
-  }, []);
+    // If it's the very first node (root node), make it Red. Otherwise, shiny Blue.
+    if (graphData.nodes.length > 0 && node.id === (graphData.nodes[0] as any).id) {
+      return '#ef4444'; // Red
+    }
+    return '#3b82f6'; // Shiny blue
+  }, [graphData]);
 
   if (loading) {
     return <div className="text-neutral-500 text-sm">Loading Neural Graph...</div>;
@@ -45,7 +47,8 @@ export default function MemoryGraph() {
         nodeLabel="name"
         nodeColor={getNodeColor}
         nodeRelSize={7}
-        nodeOpacity={1}
+        nodeResolution={32}
+        nodeOpacity={0.95}
         linkColor={() => 'rgba(220, 38, 38, 0.4)'}
         backgroundColor="rgba(0,0,0,0)"
         width={600}
