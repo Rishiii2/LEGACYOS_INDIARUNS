@@ -3,6 +3,7 @@ import json
 import os
 from google import genai
 import random
+from precomputed import PRECOMPUTED_BOARD_QUERIES, PRECOMPUTED_PERSONA_QUERIES
 
 # Initialize Gemini Client
 api_key = os.getenv("GEMINI_API_KEY", "")
@@ -50,6 +51,22 @@ async def run_shadow_board(query: str):
     yield f"data: {json.dumps({'event': 'start', 'message': f'Initializing Shadow Board for query: {query}'})}\n\n"
     await asyncio.sleep(1)
 
+    # Check for precomputed perfect response to save tokens for popular queries
+    if query in PRECOMPUTED_BOARD_QUERIES:
+        precomputed = PRECOMPUTED_BOARD_QUERIES[query]
+        for agent in agents:
+            yield f"data: {json.dumps({'event': 'thinking', 'agent': agent, 'message': f'{agent} is analyzing data...'})}\n\n"
+            await asyncio.sleep(0.5)
+            thought = precomputed[agent]
+            yield f"data: {json.dumps({'event': 'speak', 'agent': agent, 'message': thought})}\n\n"
+            await asyncio.sleep(1)
+        
+        yield f"data: {json.dumps({'event': 'thinking', 'agent': 'Orchestrator', 'message': 'Drafting final Board Resolution...'})}\n\n"
+        await asyncio.sleep(1)
+        yield f"data: {json.dumps({'event': 'resolution', 'agent': 'Orchestrator', 'message': precomputed['Orchestrator']})}\n\n"
+        yield "data: [DONE]\n\n"
+        return
+
     thoughts = []
     # 2. Let each agent speak sequentially (for visual effect)
     for agent in agents:
@@ -95,6 +112,23 @@ async def simulate_personas(content: str):
     """
     yield f"data: {json.dumps({'event': 'start', 'message': 'Spawning 10 Digital Twin Personas...'})}\n\n"
     await asyncio.sleep(1)
+
+    # Check for precomputed perfect response to save tokens for popular queries
+    if content in PRECOMPUTED_PERSONA_QUERIES:
+        precomputed = PRECOMPUTED_PERSONA_QUERIES[content]
+        personas = list(precomputed.keys())
+        personas.remove("Orchestrator")
+        
+        for persona in personas:
+            yield f"data: {json.dumps({'event': 'simulating', 'persona': persona, 'message': f'Running content past {persona}...'})}\n\n"
+            await asyncio.sleep(0.5)
+            reaction = precomputed[persona]
+            yield f"data: {json.dumps({'event': 'reaction', 'persona': persona, 'message': reaction})}\n\n"
+            await asyncio.sleep(0.5)
+            
+        yield f"data: {json.dumps({'event': 'finish', 'message': precomputed['Orchestrator']})}\n\n"
+        yield "data: [DONE]\n\n"
+        return
 
     personas = [
         "Busy Executive", "Skeptical Buyer", "Gen-Z Trendsetter", "Frugal Shopper", 
