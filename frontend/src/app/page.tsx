@@ -9,7 +9,7 @@ export default function LegacyOSDashboard() {
   const [query, setQuery] = useState('');
   const [isSimulating, setIsSimulating] = useState(false);
   const [activeMenu, setActiveMenu] = useState('board'); // 'board', 'simulation', 'memory'
-  const [logs, setLogs] = useState<{agent: string, message: string, type: string}[]>([]);
+  const [logs, setLogs] = useState<any[]>([]);
   
   // Ref for auto-scrolling the chat
   const logsEndRef = useRef<HTMLDivElement>(null);
