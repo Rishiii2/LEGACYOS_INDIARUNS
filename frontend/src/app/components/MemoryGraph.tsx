@@ -25,14 +25,7 @@ export default function MemoryGraph() {
   }, []);
 
   const getNodeColor = useCallback((node: any) => {
-    const colors: Record<string, string> = {
-      person: '#3b82f6', // blue
-      project: '#10b981', // emerald
-      goal: '#f59e0b', // amber
-      skill: '#8b5cf6', // purple
-      market: '#ec4899', // pink
-    };
-    return colors[node.group] || '#9ca3af'; // gray default
+    return '#10b981'; // Bright emerald for all nodes to give a glowing matrix effect
   }, []);
 
   if (loading) {
@@ -44,14 +37,15 @@ export default function MemoryGraph() {
   }
 
   return (
-    <div className="w-full h-[500px] flex items-center justify-center rounded-2xl overflow-hidden bg-neutral-900 shadow-inner">
+    <div className="w-full h-[500px] flex items-center justify-center rounded-2xl overflow-hidden bg-[#0E0E10] shadow-inner shadow-black/50 border border-neutral-800">
       <ForceGraph3D
         graphData={graphData}
         nodeLabel="name"
         nodeColor={getNodeColor}
-        nodeRelSize={6}
-        linkColor={() => 'rgba(255,255,255,0.2)'}
-        backgroundColor="#171717"
+        nodeRelSize={7}
+        nodeOpacity={0.9}
+        linkColor={() => 'rgba(16, 185, 129, 0.25)'}
+        backgroundColor="#0E0E10"
         width={600}
         height={500}
       />

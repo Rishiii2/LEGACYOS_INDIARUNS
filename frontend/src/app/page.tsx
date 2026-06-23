@@ -22,10 +22,12 @@ export default function LegacyOSDashboard() {
     if (!query.trim()) return;
     setIsSimulating(true);
     setLogs([]);
+    const savedQuery = query;
+    setQuery('');
     
     // Select backend route based on active tab
     const endpoint = activeMenu === 'board' ? '/api/board-meeting' : '/api/simulate';
-    const payload = activeMenu === 'board' ? { query } : { content: query };
+    const payload = activeMenu === 'board' ? { query: savedQuery } : { content: savedQuery };
 
     try {
       const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -71,33 +73,33 @@ export default function LegacyOSDashboard() {
   };
 
   return (
-    <div className="flex h-screen bg-[#FDFDFD] text-neutral-800 font-sans overflow-hidden">
+    <div className="flex h-screen bg-[#0A0A0B] text-neutral-200 font-sans overflow-hidden">
       
       {/* Sidebar Navigation */}
-      <aside className="w-64 border-r border-neutral-200 bg-white flex flex-col justify-between hidden md:flex">
+      <aside className="w-64 border-r border-neutral-800 bg-[#0E0E10] flex flex-col justify-between hidden md:flex">
         <div>
-          <div className="p-6 flex items-center gap-3 border-b border-neutral-100">
-            <div className="w-8 h-8 bg-neutral-900 rounded-lg flex items-center justify-center">
-              <BrainCircuit className="w-5 h-5 text-white" />
+          <div className="p-6 flex items-center gap-3 border-b border-neutral-800">
+            <div className="w-8 h-8 bg-emerald-500 rounded-lg flex items-center justify-center">
+              <BrainCircuit className="w-5 h-5 text-black" />
             </div>
-            <h1 className="text-sm font-bold tracking-widest uppercase">LegacyOS</h1>
+            <h1 className="text-sm font-bold tracking-widest uppercase text-white">LegacyOS</h1>
           </div>
           
           <nav className="p-4 space-y-2 mt-4">
-            <button onClick={() => setActiveMenu('board')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeMenu === 'board' ? 'bg-neutral-100 text-neutral-900 shadow-sm' : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900'}`}>
+            <button onClick={() => setActiveMenu('board')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeMenu === 'board' ? 'bg-emerald-500/10 text-emerald-400 shadow-sm' : 'text-neutral-500 hover:bg-neutral-800 hover:text-neutral-200'}`}>
               <Users className="w-4 h-4" /> Shadow Board
             </button>
-            <button onClick={() => setActiveMenu('simulation')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeMenu === 'simulation' ? 'bg-neutral-100 text-neutral-900 shadow-sm' : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900'}`}>
+            <button onClick={() => setActiveMenu('simulation')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeMenu === 'simulation' ? 'bg-emerald-500/10 text-emerald-400 shadow-sm' : 'text-neutral-500 hover:bg-neutral-800 hover:text-neutral-200'}`}>
               <Eye className="w-4 h-4" /> Digital Twins
             </button>
-            <button onClick={() => setActiveMenu('memory')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeMenu === 'memory' ? 'bg-neutral-100 text-neutral-900 shadow-sm' : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900'}`}>
+            <button onClick={() => setActiveMenu('memory')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeMenu === 'memory' ? 'bg-emerald-500/10 text-emerald-400 shadow-sm' : 'text-neutral-500 hover:bg-neutral-800 hover:text-neutral-200'}`}>
               <Database className="w-4 h-4" /> Knowledge Graph
             </button>
           </nav>
         </div>
         
-        <div className="p-4 border-t border-neutral-100">
-          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-500 hover:bg-neutral-50">
+        <div className="p-4 border-t border-neutral-800">
+          <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium text-neutral-500 hover:bg-neutral-800 hover:text-neutral-200">
             <Settings className="w-4 h-4" /> Settings
           </button>
         </div>
@@ -107,9 +109,9 @@ export default function LegacyOSDashboard() {
       <main className="flex-1 flex flex-col h-screen overflow-hidden">
         
         {/* Top Navigation Bar */}
-        <header className="h-16 border-b border-neutral-200 bg-white/50 backdrop-blur-md flex items-center px-8 justify-between shrink-0">
-          <h2 className="text-sm font-semibold text-neutral-800 flex items-center gap-2">
-            <Compass className="w-4 h-4 text-neutral-400" />
+        <header className="h-16 border-b border-neutral-800 bg-[#0E0E10]/80 backdrop-blur-md flex items-center px-8 justify-between shrink-0">
+          <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+            <Compass className="w-4 h-4 text-emerald-500" />
             {activeMenu === 'board' ? 'Active Swarm: Board of Directors' : activeMenu === 'simulation' ? 'Active Environment: Digital Twins' : 'Memory: Vector Database'}
           </h2>
           <div className="flex items-center gap-2">
@@ -128,15 +130,28 @@ export default function LegacyOSDashboard() {
           <div className="w-1/3 flex flex-col gap-4 h-full min-w-[320px]">
             
             {/* The Live Streaming Log Window */}
-            <div className="bg-white rounded-2xl shadow-sm border border-neutral-200 flex-1 flex flex-col min-h-0 overflow-hidden relative">
-              <div className="px-5 py-3 border-b border-neutral-100 bg-neutral-50 flex items-center gap-2">
-                <div className="w-2 h-2 rounded-full bg-neutral-300"></div>
-                <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-500">Execution Log</h3>
+            <div className="bg-[#0E0E10] rounded-2xl shadow-sm border border-neutral-800 flex-1 flex flex-col min-h-0 overflow-hidden relative">
+              <div className="px-5 py-3 border-b border-neutral-800 bg-neutral-900/50 flex items-center gap-2">
+                <div className="w-2 h-2 rounded-full bg-neutral-500"></div>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400">Execution Log</h3>
               </div>
               
               <div className="flex-1 overflow-y-auto p-5 space-y-4 font-mono text-sm">
+                
+                {/* Instructional Manual */}
+                <div className="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20">
+                  <h4 className="text-emerald-400 font-bold text-xs uppercase mb-1">
+                    {activeMenu === 'board' ? 'Shadow Board Mode' : 'Digital Twins Mode'}
+                  </h4>
+                  <p className="text-emerald-500/80 text-xs leading-relaxed">
+                    {activeMenu === 'board' 
+                      ? 'Simulates a 4-person executive board to pressure-test your strategy. Type a major decision below (e.g. "Should we pivot to AI?").'
+                      : 'Simulates 10 diverse consumer personas reading your marketing copy. Paste an ad or product pitch below to A/B test your messaging.'}
+                  </p>
+                </div>
+
                 {logs.length === 0 ? (
-                  <div className="text-neutral-400 h-full flex items-center justify-center text-xs text-center">
+                  <div className="text-neutral-500 h-32 flex items-center justify-center text-xs text-center">
                     Awaiting command payload...
                   </div>
                 ) : (
@@ -145,10 +160,10 @@ export default function LegacyOSDashboard() {
                       initial={{ opacity: 0, y: 5 }}
                       animate={{ opacity: 1, y: 0 }}
                       key={i} 
-                      className={`flex flex-col border-l-2 pl-3 py-1 ${log.agent === 'Orchestrator' ? 'border-neutral-900' : 'border-neutral-200'}`}
+                      className={`flex flex-col border-l-2 pl-3 py-1 ${log.agent === 'Orchestrator' ? 'border-emerald-500' : 'border-neutral-700'}`}
                     >
-                      <span className="font-bold text-neutral-900 text-xs mb-1">{log.agent}</span>
-                      <span className="text-neutral-600 leading-relaxed text-[13px]">{log.message}</span>
+                      <span className="font-bold text-neutral-200 text-xs mb-1">{log.agent || log.persona || 'System'}</span>
+                      <span className="text-neutral-400 leading-relaxed text-[13px]">{log.message}</span>
                     </motion.div>
                   ))
                 )}
@@ -157,19 +172,19 @@ export default function LegacyOSDashboard() {
             </div>
 
             {/* Input Box */}
-            <div className="bg-white p-2 pl-5 rounded-2xl shadow-sm border border-neutral-200 flex items-center gap-3 shrink-0">
+            <div className="bg-[#0E0E10] p-2 pl-5 rounded-2xl shadow-sm border border-neutral-800 flex items-center gap-3 shrink-0 focus-within:border-emerald-500/50 transition-colors">
               <input 
                 type="text" 
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Deploy a strategy..."
-                className="flex-1 bg-transparent outline-none text-sm text-neutral-900 placeholder-neutral-400"
+                placeholder="Deploy a strategy or pitch..."
+                className="flex-1 bg-transparent outline-none text-sm text-white placeholder-neutral-600"
                 onKeyDown={(e) => e.key === 'Enter' && startSimulation()}
               />
               <button 
                 onClick={startSimulation}
                 disabled={isSimulating}
-                className="bg-neutral-900 text-white p-3 rounded-xl hover:bg-neutral-800 transition-colors disabled:opacity-50"
+                className="bg-emerald-500 text-black p-3 rounded-xl hover:bg-emerald-400 transition-colors disabled:opacity-50"
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -177,37 +192,48 @@ export default function LegacyOSDashboard() {
           </div>
 
           {/* Right Column: Visualization Canvas */}
-          <div className="flex-1 bg-white rounded-2xl shadow-sm border border-neutral-200 p-8 flex flex-col relative overflow-hidden h-full">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-400 mb-6 z-10">
+          <div className="flex-1 bg-[#0E0E10] rounded-2xl shadow-sm border border-neutral-800 p-8 flex flex-col relative overflow-hidden h-full">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-500 mb-6 z-10">
               {activeMenu === 'memory' ? '3D Knowledge Graph' : 'Simulation Canvas'}
             </h3>
             
             {/* Background Aesthetic */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none">
-               <BrainCircuit className="w-[600px] h-[600px]" />
+            <div className="absolute inset-0 flex items-center justify-center opacity-[0.03] pointer-events-none">
+               <BrainCircuit className="w-[600px] h-[600px] text-white" />
             </div>
 
             <div className="flex-1 z-10 flex flex-col w-full h-full overflow-hidden">
                {activeMenu === 'memory' ? (
                  <div className="w-full h-full flex flex-col items-center justify-center text-center">
                    <MemoryGraph />
-                   <p className="mt-4 text-xs text-neutral-500 font-mono bg-neutral-100 px-3 py-1 rounded-full border border-neutral-200">Drag to rotate • Scroll to zoom</p>
+                   <p className="mt-4 text-xs text-neutral-600 font-mono bg-neutral-900 px-3 py-1 rounded-full border border-neutral-800">Drag to rotate • Scroll to zoom</p>
                  </div>
                ) : (
                  <div className="w-full h-full overflow-y-auto">
                    {logs.filter(l => l.type === 'speak' || l.type === 'reaction' || l.type === 'resolution' || l.type === 'finish').length > 0 ? (
-                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max pb-10">
+                     <div className={`grid gap-4 auto-rows-max pb-10 ${activeMenu === 'board' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'}`}>
                        {logs.filter(l => l.type === 'speak' || l.type === 'reaction' || l.type === 'resolution' || l.type === 'finish').map((log, idx) => (
                          <motion.div 
                            key={idx} 
-                           initial={{ opacity: 0, y: 10 }} 
-                           animate={{ opacity: 1, y: 0 }}
-                           className={`p-4 rounded-xl shadow-sm border ${log.type === 'resolution' || log.type === 'finish' ? 'col-span-full bg-emerald-50 border-emerald-200' : 'bg-white border-neutral-200'}`}
+                           initial={{ opacity: 0, y: 10, scale: 0.98 }} 
+                           animate={{ opacity: 1, y: 0, scale: 1 }}
+                           className={activeMenu === 'board' ? (
+                             `p-5 rounded-xl border ${log.type === 'resolution' || log.type === 'finish' ? 'col-span-full bg-emerald-500/10 border-emerald-500/30' : 'bg-[#16161A] border-neutral-800'}`
+                           ) : (
+                             `flex items-center gap-4 p-4 rounded-full border bg-[#16161A] border-neutral-800 shadow-xl shadow-black/20`
+                           )}
                          >
-                           <h5 className={`font-bold text-sm mb-2 ${log.type === 'resolution' || log.type === 'finish' ? 'text-emerald-800' : 'text-neutral-900'}`}>
-                             {log.agent || log.persona || 'System Orchestrator'}
-                           </h5>
-                           <p className="text-xs text-neutral-600 leading-relaxed">{log.message}</p>
+                           {activeMenu === 'simulation' && (
+                             <div className="w-10 h-10 shrink-0 rounded-full bg-emerald-500/20 flex items-center justify-center border border-emerald-500/30">
+                               <Users className="w-5 h-5 text-emerald-400" />
+                             </div>
+                           )}
+                           <div className="flex-1 min-w-0">
+                             <h5 className={`font-bold text-sm mb-1 ${log.type === 'resolution' || log.type === 'finish' ? 'text-emerald-400' : 'text-neutral-200'}`}>
+                               {log.agent || log.persona || 'System Orchestrator'}
+                             </h5>
+                             <p className="text-xs text-neutral-400 leading-relaxed truncate whitespace-normal line-clamp-2">{log.message}</p>
+                           </div>
                          </motion.div>
                        ))}
                      </div>
@@ -215,15 +241,15 @@ export default function LegacyOSDashboard() {
                      <div className="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto">
                        {isSimulating ? (
                          <motion.div animate={{ scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 2 }}>
-                           <Users className="w-16 h-16 mx-auto mb-6 text-neutral-900" />
-                           <h4 className="text-lg font-medium text-neutral-900 mb-2">Swarm Active</h4>
+                           <Users className="w-16 h-16 mx-auto mb-6 text-emerald-500 opacity-80" />
+                           <h4 className="text-lg font-medium text-white mb-2">Swarm Active</h4>
                            <p className="text-sm text-neutral-500">Agents are currently analyzing parameters and debating outcomes in real-time.</p>
                          </motion.div>
                        ) : (
                          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                           <LayoutDashboard className="w-16 h-16 mx-auto mb-6 text-neutral-300" />
-                           <h4 className="text-lg font-medium text-neutral-800 mb-2">Canvas Idle</h4>
-                           <p className="text-sm text-neutral-500">Submit a query to initialize the AI multi-agent swarm.</p>
+                           <LayoutDashboard className="w-16 h-16 mx-auto mb-6 text-neutral-800" />
+                           <h4 className="text-lg font-medium text-neutral-400 mb-2">Canvas Idle</h4>
+                           <p className="text-sm text-neutral-600">Submit a query to initialize the AI multi-agent swarm.</p>
                          </motion.div>
                        )}
                      </div>
