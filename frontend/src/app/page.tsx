@@ -28,7 +28,8 @@ export default function LegacyOSDashboard() {
     const payload = activeMenu === 'board' ? { query } : { content: query };
 
     try {
-      const response = await fetch(`http://localhost:8000${endpoint}`, {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${baseUrl}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

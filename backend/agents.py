@@ -25,6 +25,9 @@ async def generate_agent_thought(agent_name: str, query: str, context: str = "")
         )
         return response.text
     except Exception as e:
+        error_msg = str(e).lower()
+        if "429" in error_msg or "exhausted" in error_msg or "quota" in error_msg:
+            return "U have used enough, Please try after sometime"
         return f"[ERROR] {agent_name} failed: {str(e)}"
 
 async def run_shadow_board(query: str):
@@ -58,8 +61,12 @@ async def run_shadow_board(query: str):
         summary_prompt = f"Summarize these board thoughts into a 3-point final resolution: {' | '.join(thoughts)}"
         try:
             resolution = client.models.generate_content(model="gemini-2.5-flash-lite", contents=summary_prompt).text
-        except:
-            resolution = "[MOCK] Proceed with caution, monitor burn rate, and test with a small cohort first."
+        except Exception as e:
+            error_msg = str(e).lower()
+            if "429" in error_msg or "exhausted" in error_msg or "quota" in error_msg:
+                resolution = "U have used enough, Please try after sometime"
+            else:
+                resolution = f"[ERROR] Orchestrator failed: {str(e)}"
     else:
         await asyncio.sleep(1.5)
         resolution = "[MOCK] Proceed with caution, monitor burn rate, and test with a small cohort first."
@@ -88,8 +95,12 @@ async def simulate_personas(content: str):
             prompt = f"React to this content strictly as a '{persona}'. Content: '{content}'. Give a 1-sentence reaction and a score from 1-10."
             try:
                 reaction = client.models.generate_content(model="gemini-2.5-flash-lite", contents=prompt).text
-            except:
-                reaction = "[MOCK] I find this interesting but the price point is a bit high. (Score: 6/10)"
+            except Exception as e:
+                error_msg = str(e).lower()
+                if "429" in error_msg or "exhausted" in error_msg or "quota" in error_msg:
+                    reaction = "U have used enough, Please try after sometime"
+                else:
+                    reaction = f"[ERROR] {str(e)}"
         else:
             await asyncio.sleep(0.5)
             # Random mock score

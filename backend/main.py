@@ -15,7 +15,7 @@ app = FastAPI(title="LegacyOS Multi-Agent Engine", version="1.0.0")
 # Enable CORS for the Next.js frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["*"], # Allow all origins for Vercel deployment
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -78,4 +78,5 @@ async def get_memory_graph():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)

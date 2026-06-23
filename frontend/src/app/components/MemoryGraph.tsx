@@ -11,7 +11,8 @@ export default function MemoryGraph() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:8000/api/memory/graph')
+    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    fetch(`${baseUrl}/api/memory/graph`)
       .then(res => res.json())
       .then(data => {
         setGraphData(data);
