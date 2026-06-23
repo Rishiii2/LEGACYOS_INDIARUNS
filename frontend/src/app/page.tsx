@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Send, BrainCircuit, Users, Eye, Database, LayoutDashboard, Settings, Compass } from 'lucide-react';
+import MemoryGraph from './components/MemoryGraph';
 
 export default function LegacyOSDashboard() {
   const [query, setQuery] = useState('');
@@ -187,11 +188,10 @@ export default function LegacyOSDashboard() {
 
             <div className="flex-1 z-10 flex flex-col items-center justify-center text-center">
                {activeMenu === 'memory' ? (
-                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-md">
-                   <Database className="w-16 h-16 mx-auto mb-6 text-neutral-300" />
-                   <h4 className="text-lg font-medium text-neutral-800 mb-2">Vector Memory Unavailable</h4>
-                   <p className="text-sm text-neutral-500">Connect your Supabase pgvector instance to render your 3D Knowledge Graph nodes.</p>
-                 </motion.div>
+                 <div className="w-full flex flex-col items-center">
+                   <MemoryGraph />
+                   <p className="mt-4 text-xs text-neutral-500 font-mono bg-neutral-100 px-3 py-1 rounded-full border border-neutral-200">Drag to rotate • Scroll to zoom</p>
+                 </div>
                ) : (
                  <div className="max-w-md">
                    {isSimulating ? (
