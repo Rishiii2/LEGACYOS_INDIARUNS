@@ -73,7 +73,14 @@ async def run_shadow_board(query: str):
         
         yield f"data: {json.dumps({'event': 'thinking', 'agent': 'Orchestrator', 'message': 'Drafting final Board Resolution...'})}\n\n"
         await asyncio.sleep(1)
-        yield f"data: {json.dumps({'event': 'resolution', 'agent': 'Orchestrator', 'message': precomputed['Orchestrator']})}\n\n"
+        
+        resolution_text = precomputed['Orchestrator']
+        yield f"data: {json.dumps({'event': 'resolution', 'agent': 'Orchestrator', 'message': resolution_text})}\n\n"
+        
+        # Save to memory graph
+        full_text = " ".join([f"{a}: {t}" for a, t in precomputed.items()])
+        update_memory_graph(query, full_text)
+        
         yield "data: [DONE]\n\n"
         return
 
@@ -142,6 +149,11 @@ async def simulate_personas(content: str):
             await asyncio.sleep(0.5)
             
         yield f"data: {json.dumps({'event': 'finish', 'message': precomputed['Orchestrator']})}\n\n"
+        
+        # Save to memory graph
+        full_text = " ".join([f"{p}: {r}" for p, r in precomputed.items()])
+        update_memory_graph(content, full_text)
+        
         yield "data: [DONE]\n\n"
         return
 
