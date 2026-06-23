@@ -25,9 +25,9 @@ export default function MemoryGraph() {
   }, []);
 
   const getNodeColor = useCallback((node: any) => {
-    // If it's the very first node (root node), make it Neon Red to simulate glow. Otherwise, Neon Cyan/Blue.
+    // If it's the very first node (root node), make it Glowing White. Otherwise, Neon Cyan/Blue.
     if (graphData.nodes.length > 0 && node.id === (graphData.nodes[0] as any).id) {
-      return '#ff0055'; // Glowing Neon Red
+      return '#ffffff'; // Glowing White
     }
     return '#00e5ff'; // Glowing Neon Blue/Cyan
   }, [graphData]);
