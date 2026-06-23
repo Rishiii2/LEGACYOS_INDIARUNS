@@ -4,11 +4,14 @@ import os
 from google import genai
 import random
 
-# Initialize Gemini Client (will fail gracefully if no API key is present during mock mode)
+# Initialize Gemini Client
 api_key = os.getenv("GEMINI_API_KEY", "")
 client = None
 if api_key:
     client = genai.Client(api_key=api_key)
+
+# In-Memory Cache to drastically save API tokens on repeated/similar queries
+response_cache = {}
 
 async def generate_agent_thought(agent_name: str, query: str, context: str = ""):
     """Helper function to get a response from Gemini or mock it if no key is present."""
@@ -17,12 +20,18 @@ async def generate_agent_thought(agent_name: str, query: str, context: str = "")
         return f"[MOCK] {agent_name} has analyzed the query: '{query}' and believes it is a strong strategic move."
 
     prompt = f"You are acting as the {agent_name} on a Shadow Board of Directors. The user asks: '{query}'. Context: {context}. Give a strict 2-sentence perspective from your specific role."
+    
+    if prompt in response_cache:
+        await asyncio.sleep(0.5) # simulate latency
+        return response_cache[prompt]
+
     try:
         # Note: In a real async environment, we'd use async client or run_in_executor
         response = client.models.generate_content(
             model="gemini-2.5-flash-lite",
             contents=prompt
         )
+        response_cache[prompt] = response.text
         return response.text
     except Exception as e:
         error_msg = str(e).lower()
@@ -59,14 +68,19 @@ async def run_shadow_board(query: str):
     
     if client:
         summary_prompt = f"Summarize these board thoughts into a 3-point final resolution: {' | '.join(thoughts)}"
-        try:
-            resolution = client.models.generate_content(model="gemini-2.5-flash-lite", contents=summary_prompt).text
-        except Exception as e:
-            error_msg = str(e).lower()
-            if "429" in error_msg or "exhausted" in error_msg or "quota" in error_msg:
-                resolution = "U have used enough, Please try after sometime"
-            else:
-                resolution = f"[ERROR] Orchestrator failed: {str(e)}"
+        
+        if summary_prompt in response_cache:
+            resolution = response_cache[summary_prompt]
+        else:
+            try:
+                resolution = client.models.generate_content(model="gemini-2.5-flash-lite", contents=summary_prompt).text
+                response_cache[summary_prompt] = resolution
+            except Exception as e:
+                error_msg = str(e).lower()
+                if "429" in error_msg or "exhausted" in error_msg or "quota" in error_msg:
+                    resolution = "U have used enough, Please try after sometime"
+                else:
+                    resolution = f"[ERROR] Orchestrator failed: {str(e)}"
     else:
         await asyncio.sleep(1.5)
         resolution = "[MOCK] Proceed with caution, monitor burn rate, and test with a small cohort first."
@@ -93,14 +107,19 @@ async def simulate_personas(content: str):
         
         if client:
             prompt = f"React to this content strictly as a '{persona}'. Content: '{content}'. Give a 1-sentence reaction and a score from 1-10."
-            try:
-                reaction = client.models.generate_content(model="gemini-2.5-flash-lite", contents=prompt).text
-            except Exception as e:
-                error_msg = str(e).lower()
-                if "429" in error_msg or "exhausted" in error_msg or "quota" in error_msg:
-                    reaction = "U have used enough, Please try after sometime"
-                else:
-                    reaction = f"[ERROR] {str(e)}"
+            
+            if prompt in response_cache:
+                reaction = response_cache[prompt]
+            else:
+                try:
+                    reaction = client.models.generate_content(model="gemini-2.5-flash-lite", contents=prompt).text
+                    response_cache[prompt] = reaction
+                except Exception as e:
+                    error_msg = str(e).lower()
+                    if "429" in error_msg or "exhausted" in error_msg or "quota" in error_msg:
+                        reaction = "U have used enough, Please try after sometime"
+                    else:
+                        reaction = f"[ERROR] {str(e)}"
         else:
             await asyncio.sleep(0.5)
             # Random mock score
