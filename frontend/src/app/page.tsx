@@ -195,16 +195,16 @@ export default function LegacyOSDashboard() {
                  </div>
                ) : (
                  <div className="w-full h-full overflow-y-auto">
-                   {logs.filter(l => l.event === 'speak' || l.event === 'reaction' || l.event === 'resolution' || l.event === 'finish').length > 0 ? (
+                   {logs.filter(l => l.type === 'speak' || l.type === 'reaction' || l.type === 'resolution' || l.type === 'finish').length > 0 ? (
                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max pb-10">
-                       {logs.filter(l => l.event === 'speak' || l.event === 'reaction' || l.event === 'resolution' || l.event === 'finish').map((log, idx) => (
+                       {logs.filter(l => l.type === 'speak' || l.type === 'reaction' || l.type === 'resolution' || l.type === 'finish').map((log, idx) => (
                          <motion.div 
                            key={idx} 
                            initial={{ opacity: 0, y: 10 }} 
                            animate={{ opacity: 1, y: 0 }}
-                           className={`p-4 rounded-xl shadow-sm border ${log.event === 'resolution' || log.event === 'finish' ? 'col-span-full bg-emerald-50 border-emerald-200' : 'bg-white border-neutral-200'}`}
+                           className={`p-4 rounded-xl shadow-sm border ${log.type === 'resolution' || log.type === 'finish' ? 'col-span-full bg-emerald-50 border-emerald-200' : 'bg-white border-neutral-200'}`}
                          >
-                           <h5 className={`font-bold text-sm mb-2 ${log.event === 'resolution' || log.event === 'finish' ? 'text-emerald-800' : 'text-neutral-900'}`}>
+                           <h5 className={`font-bold text-sm mb-2 ${log.type === 'resolution' || log.type === 'finish' ? 'text-emerald-800' : 'text-neutral-900'}`}>
                              {log.agent || log.persona || 'System Orchestrator'}
                            </h5>
                            <p className="text-xs text-neutral-600 leading-relaxed">{log.message}</p>
