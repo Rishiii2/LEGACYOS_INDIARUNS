@@ -25,11 +25,11 @@ export default function MemoryGraph() {
   }, []);
 
   const getNodeColor = useCallback((node: any) => {
-    // If it's the very first node (root node), make it Red. Otherwise, shiny Blue.
+    // If it's the very first node (root node), make it Neon Red to simulate glow. Otherwise, Neon Cyan/Blue.
     if (graphData.nodes.length > 0 && node.id === (graphData.nodes[0] as any).id) {
-      return '#ef4444'; // Red
+      return '#ff0055'; // Glowing Neon Red
     }
-    return '#3b82f6'; // Shiny blue
+    return '#00e5ff'; // Glowing Neon Blue/Cyan
   }, [graphData]);
 
   if (loading) {
@@ -48,8 +48,8 @@ export default function MemoryGraph() {
         nodeColor={getNodeColor}
         nodeRelSize={7}
         nodeResolution={32}
-        nodeOpacity={0.95}
-        linkColor={() => 'rgba(220, 38, 38, 0.4)'}
+        nodeOpacity={0.85}
+        linkColor={() => 'rgba(156, 163, 175, 0.4)'}
         backgroundColor="rgba(0,0,0,0)"
         width={600}
         height={500}
