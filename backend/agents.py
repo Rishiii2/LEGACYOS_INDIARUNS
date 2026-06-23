@@ -52,8 +52,18 @@ async def run_shadow_board(query: str):
     await asyncio.sleep(1)
 
     # Check for precomputed perfect response to save tokens for popular queries
-    if query in PRECOMPUTED_BOARD_QUERIES:
-        precomputed = PRECOMPUTED_BOARD_QUERIES[query]
+    query_lower = query.lower()
+    precomputed = None
+    
+    # Fuzzy keyword matching for Board Queries
+    if "enterprise ai" in query_lower or ("pivot" in query_lower and "enterprise" in query_lower):
+        precomputed = PRECOMPUTED_BOARD_QUERIES["Should we pivot our startup to focus entirely on enterprise AI?"]
+    elif "marketing" in query_lower and ("cut" in query_lower or "budget" in query_lower or "50%" in query_lower):
+        precomputed = PRECOMPUTED_BOARD_QUERIES["Should we cut our marketing budget by 50% to extend our runway?"]
+    elif "office" in query_lower and ("return" in query_lower or "5 days" in query_lower):
+        precomputed = PRECOMPUTED_BOARD_QUERIES["Should we force all employees to return to the office 5 days a week?"]
+
+    if precomputed:
         for agent in agents:
             yield f"data: {json.dumps({'event': 'thinking', 'agent': agent, 'message': f'{agent} is analyzing data...'})}\n\n"
             await asyncio.sleep(0.5)
@@ -114,8 +124,13 @@ async def simulate_personas(content: str):
     await asyncio.sleep(1)
 
     # Check for precomputed perfect response to save tokens for popular queries
-    if content in PRECOMPUTED_PERSONA_QUERIES:
-        precomputed = PRECOMPUTED_PERSONA_QUERIES[content]
+    content_lower = content.lower()
+    precomputed = None
+    
+    if "water bottle" in content_lower or "hydration" in content_lower or "$89" in content_lower:
+        precomputed = PRECOMPUTED_PERSONA_QUERIES["Introducing our new smart water bottle that tracks hydration and syncs to your phone for $89."]
+
+    if precomputed:
         personas = list(precomputed.keys())
         personas.remove("Orchestrator")
         
