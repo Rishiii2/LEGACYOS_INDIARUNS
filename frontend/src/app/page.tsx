@@ -88,7 +88,7 @@ export default function LegacyOSDashboard() {
               <Users className="w-4 h-4" /> Shadow Board
             </button>
             <button onClick={() => setActiveMenu('simulation')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeMenu === 'simulation' ? 'bg-neutral-100 text-neutral-900 shadow-sm' : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900'}`}>
-              <Eye className="w-4 h-4" /> Simulation Engine
+              <Eye className="w-4 h-4" /> Digital Twins
             </button>
             <button onClick={() => setActiveMenu('memory')} className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${activeMenu === 'memory' ? 'bg-neutral-100 text-neutral-900 shadow-sm' : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900'}`}>
               <Database className="w-4 h-4" /> Knowledge Graph
@@ -187,26 +187,46 @@ export default function LegacyOSDashboard() {
                <BrainCircuit className="w-[600px] h-[600px]" />
             </div>
 
-            <div className="flex-1 z-10 flex flex-col items-center justify-center text-center">
+            <div className="flex-1 z-10 flex flex-col w-full h-full overflow-hidden">
                {activeMenu === 'memory' ? (
-                 <div className="w-full flex flex-col items-center">
+                 <div className="w-full h-full flex flex-col items-center justify-center text-center">
                    <MemoryGraph />
                    <p className="mt-4 text-xs text-neutral-500 font-mono bg-neutral-100 px-3 py-1 rounded-full border border-neutral-200">Drag to rotate • Scroll to zoom</p>
                  </div>
                ) : (
-                 <div className="max-w-md">
-                   {isSimulating ? (
-                     <motion.div animate={{ scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 2 }}>
-                       <Users className="w-16 h-16 mx-auto mb-6 text-neutral-900" />
-                       <h4 className="text-lg font-medium text-neutral-900 mb-2">Swarm Active</h4>
-                       <p className="text-sm text-neutral-500">Agents are currently analyzing parameters and debating outcomes in real-time.</p>
-                     </motion.div>
+                 <div className="w-full h-full overflow-y-auto">
+                   {logs.filter(l => l.event === 'speak' || l.event === 'reaction' || l.event === 'resolution' || l.event === 'finish').length > 0 ? (
+                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 auto-rows-max pb-10">
+                       {logs.filter(l => l.event === 'speak' || l.event === 'reaction' || l.event === 'resolution' || l.event === 'finish').map((log, idx) => (
+                         <motion.div 
+                           key={idx} 
+                           initial={{ opacity: 0, y: 10 }} 
+                           animate={{ opacity: 1, y: 0 }}
+                           className={`p-4 rounded-xl shadow-sm border ${log.event === 'resolution' || log.event === 'finish' ? 'col-span-full bg-emerald-50 border-emerald-200' : 'bg-white border-neutral-200'}`}
+                         >
+                           <h5 className={`font-bold text-sm mb-2 ${log.event === 'resolution' || log.event === 'finish' ? 'text-emerald-800' : 'text-neutral-900'}`}>
+                             {log.agent || log.persona || 'System Orchestrator'}
+                           </h5>
+                           <p className="text-xs text-neutral-600 leading-relaxed">{log.message}</p>
+                         </motion.div>
+                       ))}
+                     </div>
                    ) : (
-                     <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                       <LayoutDashboard className="w-16 h-16 mx-auto mb-6 text-neutral-300" />
-                       <h4 className="text-lg font-medium text-neutral-800 mb-2">Canvas Idle</h4>
-                       <p className="text-sm text-neutral-500">Submit a query to initialize the AI multi-agent swarm.</p>
-                     </motion.div>
+                     <div className="h-full flex flex-col items-center justify-center text-center max-w-md mx-auto">
+                       {isSimulating ? (
+                         <motion.div animate={{ scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 2 }}>
+                           <Users className="w-16 h-16 mx-auto mb-6 text-neutral-900" />
+                           <h4 className="text-lg font-medium text-neutral-900 mb-2">Swarm Active</h4>
+                           <p className="text-sm text-neutral-500">Agents are currently analyzing parameters and debating outcomes in real-time.</p>
+                         </motion.div>
+                       ) : (
+                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                           <LayoutDashboard className="w-16 h-16 mx-auto mb-6 text-neutral-300" />
+                           <h4 className="text-lg font-medium text-neutral-800 mb-2">Canvas Idle</h4>
+                           <p className="text-sm text-neutral-500">Submit a query to initialize the AI multi-agent swarm.</p>
+                         </motion.div>
+                       )}
+                     </div>
                    )}
                  </div>
                )}
