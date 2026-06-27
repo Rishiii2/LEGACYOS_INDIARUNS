@@ -124,15 +124,34 @@ async def run_shadow_board(query: str):
         if summary_prompt in response_cache:
             resolution = response_cache[summary_prompt]
         else:
-            try:
-                resolution = client.models.generate_content(model="gemini-2.5-flash-lite", contents=summary_prompt).text
-                response_cache[summary_prompt] = resolution
-            except Exception as e:
-                error_msg = str(e).lower()
-                if "429" in error_msg or "exhausted" in error_msg or "quota" in error_msg:
-                    resolution = "U have used enough, Please try after sometime"
-                else:
-                    resolution = f"[ERROR] Orchestrator failed: {str(e)}"
+            max_retries = 3
+            base_delay = 2
+            resolution = None
+            
+            for attempt in range(max_retries):
+                try:
+                    resp = client.models.generate_content(model="gemini-2.5-flash-lite", contents=summary_prompt)
+                    resolution = resp.text
+                    response_cache[summary_prompt] = resolution
+                    break
+                except Exception as e:
+                    error_msg = str(e).lower()
+                    is_rate_limit = "429" in error_msg or "exhausted" in error_msg or "quota" in error_msg
+                    is_unavailable = "503" in error_msg or "unavailable" in error_msg or "overloaded" in error_msg
+                    
+                    if is_rate_limit or is_unavailable:
+                        if attempt < max_retries - 1:
+                            delay = base_delay * (2 ** attempt)
+                            await asyncio.sleep(delay)
+                            continue
+                        else:
+                            if is_rate_limit:
+                                resolution = "[Orchestrator] Unable to finalize resolution due to API rate limits (Too Many Requests)."
+                            else:
+                                resolution = "[Orchestrator] The central AI servers are experiencing extreme traffic and are temporarily unavailable. Please try again."
+                    else:
+                        resolution = f"[Orchestrator ERROR] An unexpected system error occurred: {str(e)}"
+                        break
     else:
         await asyncio.sleep(1.5)
         resolution = "[MOCK] Proceed with caution, monitor burn rate, and test with a small cohort first."
