@@ -62,6 +62,8 @@ async def run_shadow_board(query: str):
         precomputed = PRECOMPUTED_BOARD_QUERIES["Should we cut our marketing budget by 50% to extend our runway?"]
     elif "office" in query_lower and ("return" in query_lower or "5 days" in query_lower):
         precomputed = PRECOMPUTED_BOARD_QUERIES["Should we force all employees to return to the office 5 days a week?"]
+    elif "lore" in query_lower or "b2b saas venture capitalist" in query_lower:
+        precomputed = PRECOMPUTED_BOARD_QUERIES["Lore VC Pitch"]
 
     if precomputed:
         for agent in agents:

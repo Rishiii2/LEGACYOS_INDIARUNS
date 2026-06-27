@@ -19,6 +19,13 @@ PRECOMPUTED_BOARD_QUERIES = {
         "Risk Assessor": "We risk an immediate spike in attrition, specifically among our top engineering talent who have highly liquid skills. We need to model the cost of replacing 15-20% of our workforce in the next 90 days.",
         "The Skeptical Customer": "I don't really care where your employees sit, as long as customer support doesn't get slower. But if your best engineers quit, I worry the product will suffer.",
         "Orchestrator": "1. Prepare for a potential 15% attrition rate and budget for high-priority backfills.\n2. Launch a strategic internal communications campaign emphasizing in-person collaboration.\n3. Monitor customer support SLA metrics to ensure the transition doesn't impact the user experience."
+    },
+    "Lore VC Pitch": {
+        "Chief Financial Officer": "From my seat as a seasoned B2B SaaS VC, the 'knowledge silos' problem is a well-documented, massive drain on enterprise engineering budgets, meaning the willingness to pay (WTP) will be high. I strongly recommend a per-seat pricing model (e.g., $39/user/month) scaling up to custom Enterprise tiers, as this naturally expands as their engineering team grows.",
+        "Chief Marketing Officer": "Your go-to-market strategy needs to target VP of Engineering and Staff Engineers through highly technical, value-driven content marketing—not traditional ads. You must position 'Lore' as an active guardrail that saves time, rather than just another passive documentation wiki that developers will eventually ignore.",
+        "Risk Assessor": "The competitive moat is your biggest risk; native AI tools like GitHub Copilot Workspace or Atlassian Intelligence are uniquely positioned to build this natively. Your absolute top objection from CTOs will be data privacy and security—they will refuse to grant an external LLM access to their entire proprietary codebase without on-prem or strict SOC2 compliance.",
+        "The Skeptical Customer": "As an Engineering Manager, I hate adopting new tools that disrupt my team's workflow. The fact that Lore hooks into our existing GitHub and Slack without requiring my devs to write manual documentation is the only reason I'd give this a trial.",
+        "Orchestrator": "1. Startup Viability: Extremely high pain point; enterprise engineering teams leak millions in lost context. Verdict: 8.5/10 venture-backable idea.\n2. Pricing & GTM: Deploy a seat-based SaaS model targeting VPEs via technical thought leadership.\n3. Defensibility: You must aggressively build integrations (GitHub, Jira, Slack) faster than incumbents, and prioritize strict SOC2 compliance to overcome security objections."
     }
 }
 
