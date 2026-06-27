@@ -232,7 +232,7 @@ export default function LegacyOSDashboard() {
                              <h5 className={`font-bold text-sm mb-1 ${log.type === 'resolution' || log.type === 'finish' ? 'text-emerald-400' : 'text-white drop-shadow-sm'}`}>
                                {log.agent || log.persona || 'System Orchestrator'}
                              </h5>
-                             <p className="text-xs text-emerald-100/70 leading-relaxed truncate whitespace-normal line-clamp-2">{log.message}</p>
+                             <p className="text-xs text-emerald-100/70 leading-relaxed whitespace-pre-wrap">{log.message}</p>
                            </div>
                          </motion.div>
                        ))}
