@@ -26,19 +26,37 @@ async def generate_agent_thought(agent_name: str, query: str, context: str = "")
         await asyncio.sleep(0.5) # simulate latency
         return response_cache[prompt]
 
-    try:
-        # Note: In a real async environment, we'd use async client or run_in_executor
-        response = client.models.generate_content(
-            model="gemini-2.5-flash-lite",
-            contents=prompt
-        )
-        response_cache[prompt] = response.text
-        return response.text
-    except Exception as e:
-        error_msg = str(e).lower()
-        if "429" in error_msg or "exhausted" in error_msg or "quota" in error_msg:
-            return "U have used enough, Please try after sometime"
-        return f"[ERROR] {agent_name} failed: {str(e)}"
+    max_retries = 3
+    base_delay = 2
+
+    for attempt in range(max_retries):
+        try:
+            response = client.models.generate_content(
+                model="gemini-2.5-flash-lite",
+                contents=prompt
+            )
+            response_cache[prompt] = response.text
+            return response.text
+        except Exception as e:
+            error_msg = str(e).lower()
+            is_rate_limit = "429" in error_msg or "exhausted" in error_msg or "quota" in error_msg
+            is_unavailable = "503" in error_msg or "unavailable" in error_msg or "overloaded" in error_msg
+            
+            if is_rate_limit or is_unavailable:
+                if attempt < max_retries - 1:
+                    # Exponential backoff: 2s, 4s, 8s
+                    delay = base_delay * (2 ** attempt)
+                    print(f"API Error ({error_msg}). Retrying in {delay} seconds (Attempt {attempt + 1}/{max_retries})...")
+                    await asyncio.sleep(delay)
+                    continue
+                else:
+                    if is_rate_limit:
+                        return f"[{agent_name}] I am currently unable to analyze this data due to API rate limits (Too Many Requests). Please try again in a few minutes."
+                    else:
+                        return f"[{agent_name}] The central AI servers are experiencing extreme traffic and are temporarily unavailable (503 Error). Please try again shortly."
+            else:
+                # If it's a different error (e.g., authentication), don't retry, fail gracefully
+                return f"[{agent_name} ERROR] An unexpected system error occurred: {str(e)}"
 
 async def run_shadow_board(query: str):
     """
@@ -62,8 +80,6 @@ async def run_shadow_board(query: str):
         precomputed = PRECOMPUTED_BOARD_QUERIES["Should we cut our marketing budget by 50% to extend our runway?"]
     elif "office" in query_lower and ("return" in query_lower or "5 days" in query_lower):
         precomputed = PRECOMPUTED_BOARD_QUERIES["Should we force all employees to return to the office 5 days a week?"]
-    elif "lore" in query_lower or "b2b saas venture capitalist" in query_lower:
-        precomputed = PRECOMPUTED_BOARD_QUERIES["Lore VC Pitch"]
 
     if precomputed:
         for agent in agents:
@@ -174,15 +190,34 @@ async def simulate_personas(content: str):
             if prompt in response_cache:
                 reaction = response_cache[prompt]
             else:
-                try:
-                    reaction = client.models.generate_content(model="gemini-2.5-flash-lite", contents=prompt).text
-                    response_cache[prompt] = reaction
-                except Exception as e:
-                    error_msg = str(e).lower()
-                    if "429" in error_msg or "exhausted" in error_msg or "quota" in error_msg:
-                        reaction = "U have used enough, Please try after sometime"
-                    else:
-                        reaction = f"[ERROR] {str(e)}"
+                max_retries = 3
+                base_delay = 2
+                reaction = None
+                
+                for attempt in range(max_retries):
+                    try:
+                        resp = client.models.generate_content(model="gemini-2.5-flash-lite", contents=prompt)
+                        reaction = resp.text
+                        response_cache[prompt] = reaction
+                        break
+                    except Exception as e:
+                        error_msg = str(e).lower()
+                        is_rate_limit = "429" in error_msg or "exhausted" in error_msg or "quota" in error_msg
+                        is_unavailable = "503" in error_msg or "unavailable" in error_msg or "overloaded" in error_msg
+                        
+                        if is_rate_limit or is_unavailable:
+                            if attempt < max_retries - 1:
+                                delay = base_delay * (2 ** attempt)
+                                await asyncio.sleep(delay)
+                                continue
+                            else:
+                                if is_rate_limit:
+                                    reaction = f"[{persona}] Unreachable due to API rate limits (429)."
+                                else:
+                                    reaction = f"[{persona}] Temporarily unavailable due to high server load (503)."
+                        else:
+                            reaction = f"[{persona} ERROR] System error: {str(e)}"
+                            break
         else:
             await asyncio.sleep(0.5)
             # Random mock score
